@@ -4,7 +4,7 @@ import tkinter as tk
 from tkinter import messagebox
 
 
-card_num=25
+card_num = 25
 txt_file_dir = 'C:\\Users\\97252\\Desktop\\Shem_Kod\\words.txt'
 card_types = []
 appearances = [8,9]
@@ -17,10 +17,41 @@ card_types += red_appearance * ["Red"]
 card_types += blue_appearance * ["Blue"]
 card_types += 7 * ["White"]
 card_types += ["Black"]
-
+i = 0 if red_appearance > blue_appearance else 1
 teams = ["Red", "Blue"]
-win = False
 
+
+# Classes:
+class Card:
+  def __init__(self, word):
+    self.word = word
+    self.color = random.choice(card_types)
+    card_types.remove(self.color)
+
+
+
+class Turn:
+    def __init__(self, i):
+        self.i = i 
+        self.turn_string = tk.Label(word_window, text=teams[self.i] + " team turn!").grid(row=0, column=2)
+    
+    def Change_team(self):
+        self.i = 1 - self.i
+        self.turn_string = tk.Label(word_window, text=teams[self.i] + " team turn!").grid(row=0, column=2)
+
+class Game_button:
+    def __init__(self, x):
+        self.x = x
+        self.word = words[x].word
+        self.button = tk.Button(word_window,text=words[x].word,height = 5, width = 10, command=self.Get_word).grid(column=x % 5,row=30 + int(x / 5), padx=(10,10), pady=(10,10))
+
+    def Get_word(self):
+        self.button = tk.Button(word_window,text="",height = 5, width = 10, bg=words[self.x].color).grid(column=self.x % 5,row=30 + int(self.x / 5), padx=(10,10), pady=(10,10))
+        if Check_answers(self.word):
+            turn.Change_team()
+
+
+win = False
 
 
 # Pre-Game Functions:
@@ -43,26 +74,18 @@ def Init_game():
 
 
 
-def Check_answer():
-    print(self)
-
-
-
 # On-Game Functions:
 def Print_board_by_attribute(att):  
     #GUI
-    if att=="word":   
+    if att == "word":   
         for x in range(0,card_num):
             for x in range(0,card_num):
                 Game_button(x)
-            #b = tk.Button(word_window,text=words[x].word,height = 5, width = 10)
-            #b.grid(column=x%5,row=30+int(x/5), padx=(10,10), pady=(10,10))
-            
     else:
         color_window = Create_window()
         for x in range(0,card_num):
             b = tk.Button(color_window, bg=words[x].color,height = 5, width = 10)
-            b.grid(column=x%5,row=int(x/5), padx=(5,5), pady=(5,5))
+            b.grid(column=x % 5,row=int(x / 5), padx=(5,5), pady=(5,5))
         color_window.mainloop()
     
 
@@ -73,14 +96,14 @@ def Find_index_by_word(word):
 
 def Check_answers(answer):
     answer_index = Find_index_by_word(answer)
-    if words[answer_index].color==teams[i]:
+    if words[answer_index].color == teams[turn.i]:
         return True
     else:
         return False
 
-def Show_card_color(answer):
-    index_to_flip = Find_index_by_word(answer)
-    words[index_to_flip].word = words[index_to_flip].color
+#def Show_card_color(answer):
+#    index_to_flip = Find_index_by_word(answer)
+#    words[index_to_flip].word = words[index_to_flip].color
 
 def Check_win():
     w = list(map(lambda x: x.word, words))
@@ -96,23 +119,7 @@ def Check_win():
         return False
 
         
-# Classes:
-class Card:
-  def __init__(self, word):
-    self.word = word
-    self.color = random.choice(card_types)
-    card_types.remove(self.color)
 
-class Game_button:
-    def __init__(self, x):
-        self.x=x
-        self.word = words[x].word
-        self.button = tk.Button(word_window,text=words[x].word,height = 5, width = 10, command=self.Get_word).grid(column=x%5,row=30+int(x/5), padx=(10,10), pady=(10,10))
-
-    def Get_word(self):
-        print(self.word)
-        self.button = tk.Button(word_window,text="",height = 5, width = 10, command=self.Get_word, bg=words[self.x].color).grid(column=self.x%5,row=30+int(self.x/5), padx=(10,10), pady=(10,10))
-        
 
 
 ############################## GAME ##############################
@@ -122,32 +129,14 @@ Init_game()
 
                             # On-Game
 
-# Choose who start the game
-
-i= 0 if red_appearance > blue_appearance else 1
-
-while(win != True):
-    word_window = Create_window()
-    tk.Label(word_window, text=teams[i]+" team turn!").grid(row=0, column=2)
-    tk.Label(word_window, text="Num of Cards:").grid(row=100, column=2)
-    e1 = tk.Entry(word_window,textvariable=tk.StringVar(),width="10").grid(row=101, column=2)
-    Print_board_by_attribute("word")
-    word_window.update()
+word_window = Create_window()
+turn = Turn(i)
+tk.Label(word_window, text="Num of Cards:").grid(row=100, column=2)
+e1 = tk.Entry(word_window,textvariable=tk.StringVar(),width="10").grid(row=101, column=2)
+Print_board_by_attribute("word")
     
-    #print("its", teams[i], "team turn!")
-    #question = input("The Rav-Meraglim word is: ")
-    #number_of_cards = int(input("number of cards:"))
-    #Print_board_by_attribute("word")
-    #for x in range(0,number_of_cards):
-    #    answer = input()
-    #    is_correct = Check_answers(answer)
-    #    Show_card_color(answer)
-    #    Print_board_by_attribute("word")
-    #    if not is_correct:
-    #        break
-
-    win = Check_win()
-    i = 1 - i
+win = Check_win()
+word_window.mainloop()
 
 print("Game Over!")
 
